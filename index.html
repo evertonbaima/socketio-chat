@@ -61,6 +61,8 @@
         <script src="/socket.io/socket.io.js"></script>
         <script>
             var socket = io();
+            
+            var id = new Date().getTime();
             var nickname = 'Nameless';
 
             $('form').submit(function () {
@@ -73,7 +75,7 @@
                 if (message.substring(0, 5) === 'nick#') {
                     nickname = message.split('#')[1];
                 } else {
-                    socket.emit('chat-message', {nickname: nickname, message: message});
+                    socket.emit('chat-message', {id: id, nickname: nickname, message: message});
                 }
 
                 $('#m').val('');
@@ -89,7 +91,13 @@
             });
 
             socket.on('chat-message', function (msg) {
-                $('#messages').append($('<li>').text(msg.message).prepend($('<b>').text(msg.nickname + ': ')));
+                var lastMessage = $('#messages li:last-child');
+
+                if (lastMessage.attr('data-user') === msg.id.toString()) {
+                    lastMessage.append('<br>' + msg.message);
+                } else {
+                    $('#messages').append($('<li>').attr('data-user', msg.id).text(msg.message).prepend($('<b>').text(msg.nickname + ': ')));
+                }
             });
 
             socket.emit('connected');
