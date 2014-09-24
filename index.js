@@ -14,6 +14,11 @@ http.listen(3000, function () {
 });
 
 io.on('connection', function (socket) {
+    socket.on('typing', function (msg) {
+        console.log(msg.nickname + ' is typing...');
+        io.emit('typing', msg);
+    });
+
     socket.on('connected', function () {
         console.log('A user connected.');
         io.emit('connected', 'A user connected.');

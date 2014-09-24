@@ -54,6 +54,7 @@
     <body>
         <div id="online"></div>
         <ul id="messages"></ul>
+        <p id="typing"></p>
         <form action="">
             <input id="m" autocomplete="off" /><button>Send</button><button>Who's online</button>
         </form>
@@ -61,9 +62,15 @@
         <script src="/socket.io/socket.io.js"></script>
         <script>
             var socket = io();
-            
+
             var id = new Date().getTime();
             var nickname = 'Nameless';
+
+            var guest = {
+                id: id,
+                nickname: nickname,
+                message: ''
+            };
 
             $('form').submit(function () {
                 var message = $('#m').val();
@@ -74,12 +81,28 @@
 
                 if (message.substring(0, 5) === 'nick#') {
                     nickname = message.split('#')[1];
+                    guest.nickname = nickname;
                 } else {
-                    socket.emit('chat-message', {id: id, nickname: nickname, message: message});
+                    socket.emit('chat-message', guest);
                 }
 
                 $('#m').val('');
                 return false;
+            });
+
+            $('#m').on('keyup', function () {
+                guest.message = this.value;
+                socket.emit('typing', guest);
+            });
+
+            socket.on('typing', function (msg) {
+                var typing = $('#typing');
+
+                if (msg.message !== '') {
+                    typing.text(msg.nickname + ' is typing...');
+                } else {
+                    typing.text('');
+                }
             });
 
             socket.on('connected', function (msg) {
