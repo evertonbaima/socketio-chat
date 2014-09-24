@@ -66,6 +66,10 @@
             $('form').submit(function () {
                 var message = $('#m').val();
 
+                if (message === '') {
+                    return false;
+                }
+
                 if (message.substring(0, 5) === 'nick#') {
                     nickname = message.split('#')[1];
                 } else {
@@ -85,7 +89,7 @@
             });
 
             socket.on('chat-message', function (msg) {
-                $('#messages').append($('<li>').text(msg.nickname + ': ' + msg.message));
+                $('#messages').append($('<li>').text(msg.message).prepend($('<b>').text(msg.nickname + ': ')));
             });
 
             socket.emit('connected');
