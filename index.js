@@ -3,6 +3,8 @@ var path = require('path');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+//var users = [];
+
 app.get('/', function (req, res) {
     res.sendFile(path.resolve('index.html'));
 });
@@ -12,10 +14,14 @@ http.listen(3000, function () {
 });
 
 io.on('connection', function (socket) {
-    console.log('A user connected.');
+    socket.on('connected', function () {
+        console.log('A user connected.');
+        io.emit('connected', 'A user connected.');
+    });
 
-    socket.on('disconnect', function () {
-        console.log('User disconnected.');
+    socket.on('disconnected', function () {
+        console.log('A user disconnected.');
+        io.emit('disconnected', 'A user disconnected.');
     });
 
     socket.on('chat-message', function (msg) {
